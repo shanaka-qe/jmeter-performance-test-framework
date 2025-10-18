@@ -1,0 +1,48 @@
+# Docker ignore file - excludes unnecessary files from Docker build context
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Test results and reports (don't include in image)
+results/
+reports/
+*.jtl
+*.log
+
+# Documentation that's not needed in the image
+*.md
+docs/
+
+# CI/CD files
+.github/
+ci/
+*.yml
+*.yaml
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+venv/
+env/
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
+
+# OS files
+Thumbs.db
+Desktop.ini
+

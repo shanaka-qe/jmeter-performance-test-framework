@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <!-- HTTP Header Manager -->
+    <!-- This component defines common HTTP headers for all requests -->
+    <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+      <collectionProp name="HeaderManager.headers">
+        <!-- Content-Type header for JSON requests -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">Content-Type</stringProp>
+          <stringProp name="Header.value">application/json</stringProp>
+        </elementProp>
+        <!-- Accept header to specify expected response format -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">Accept</stringProp>
+          <stringProp name="Header.value">application/json</stringProp>
+        </elementProp>
+        <!-- User-Agent to identify the client -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">User-Agent</stringProp>
+          <stringProp name="Header.value">JMeter-Performance-Test/1.0</stringProp>
+        </elementProp>
+        <!-- Accept-Encoding for compression -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">Accept-Encoding</stringProp>
+          <stringProp name="Header.value">gzip, deflate</stringProp>
+        </elementProp>
+        <!-- Accept-Language header -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">Accept-Language</stringProp>
+          <stringProp name="Header.value">en-US,en;q=0.9</stringProp>
+        </elementProp>
+        <!-- Authorization header (uses variable from token extraction) -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">Authorization</stringProp>
+          <stringProp name="Header.value">${authorization_header}</stringProp>
+        </elementProp>
+        <!-- X-Request-ID for distributed tracing -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">X-Request-ID</stringProp>
+          <stringProp name="Header.value">${uuid}</stringProp>
+        </elementProp>
+        <!-- X-Correlation-ID for request correlation -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">X-Correlation-ID</stringProp>
+          <stringProp name="Header.value">${correlation_id}</stringProp>
+        </elementProp>
+        <!-- API Key header (loaded from properties) -->
+        <elementProp name="" elementType="Header">
+          <stringProp name="Header.name">X-API-Key</stringProp>
+          <stringProp name="Header.value">${__P(api.key,)}</stringProp>
+        </elementProp>
+      </collectionProp>
+    </HeaderManager>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>
+

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.6.3">
+  <hashTree>
+    <!-- HTTP Request Defaults Configuration -->
+    <!-- This component defines default settings for all HTTP requests in the test plan -->
+    <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+      <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments"/>
+      </elementProp>
+      <!-- Server name or IP loaded from environment properties -->
+      <stringProp name="HTTPSampler.domain">${__P(target.host)}</stringProp>
+      <!-- Server port loaded from environment properties -->
+      <stringProp name="HTTPSampler.port">${__P(target.port,443)}</stringProp>
+      <!-- Protocol: http or https -->
+      <stringProp name="HTTPSampler.protocol">${__P(target.protocol,https)}</stringProp>
+      <!-- Base path for all requests -->
+      <stringProp name="HTTPSampler.path">${__P(base.path,/api/v1)}</stringProp>
+      <!-- Connection timeout in milliseconds -->
+      <stringProp name="HTTPSampler.connect_timeout">${__P(connection.timeout,30000)}</stringProp>
+      <!-- Response timeout in milliseconds -->
+      <stringProp name="HTTPSampler.response_timeout">${__P(response.timeout,60000)}</stringProp>
+      <!-- Follow redirects -->
+      <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+      <!-- Automatically handle redirects -->
+      <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+      <!-- Use KeepAlive for connection reuse -->
+      <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+      <!-- Use multipart/form-data for POST -->
+      <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+      <!-- Implementation: Use HttpClient4 for better performance -->
+      <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+    </ConfigTestElement>
+    <hashTree/>
+    
+    <!-- HTTP Cookie Manager -->
+    <!-- Automatically handles cookies like a browser -->
+    <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
+      <collectionProp name="CookieManager.cookies"/>
+      <!-- Clear cookies after each iteration -->
+      <boolProp name="CookieManager.clearEachIteration">false</boolProp>
+      <!-- Use standard cookie policy -->
+      <stringProp name="CookieManager.policy">standard</stringProp>
+      <!-- Store cookies as variables -->
+      <boolProp name="CookieManager.save.cookies">false</boolProp>
+    </CookieManager>
+    <hashTree/>
+    
+    <!-- HTTP Cache Manager -->
+    <!-- Simulates browser caching behavior -->
+    <CacheManager guiclass="CacheManagerGui" testclass="CacheManager" testname="HTTP Cache Manager" enabled="true">
+      <!-- Clear cache after each iteration -->
+      <boolProp name="clearEachIteration">true</boolProp>
+      <!-- Use Cache-Control/Expires header when processing GET requests -->
+      <boolProp name="useExpires">true</boolProp>
+      <!-- Maximum number of elements in cache -->
+      <intProp name="maxSize">5000</intProp>
+    </CacheManager>
+    <hashTree/>
+  </hashTree>
+</jmeterTestPlan>
+

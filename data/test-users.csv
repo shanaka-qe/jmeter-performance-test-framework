@@ -1,0 +1,12 @@
+username,password,email,role
+testuser1,TestPass123!,testuser1@example.com,user
+testuser2,TestPass123!,testuser2@example.com,user
+testuser3,TestPass123!,testuser3@example.com,user
+testuser4,TestPass123!,testuser4@example.com,admin
+testuser5,TestPass123!,testuser5@example.com,user
+testuser6,TestPass123!,testuser6@example.com,user
+testuser7,TestPass123!,testuser7@example.com,user
+testuser8,TestPass123!,testuser8@example.com,moderator
+testuser9,TestPass123!,testuser9@example.com,user
+testuser10,TestPass123!,testuser10@example.com,user
+

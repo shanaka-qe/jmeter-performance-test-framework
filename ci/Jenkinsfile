@@ -1,0 +1,239 @@
+// Jenkins Pipeline for JMeter Performance Testing
+// This Jenkinsfile defines a complete CI/CD pipeline for performance testing
+// It can run smoke tests, load tests, and validate quality gates
+
+pipeline {
+    // Agent configuration - runs on any available agent with Docker
+    agent {
+        docker {
+            image 'justb4/jmeter:5.6.3'
+            args '-v $WORKSPACE:/tests -u root'
+        }
+    }
+
+    // Pipeline parameters that can be set when triggering the build
+    parameters {
+        choice(
+            name: 'TEST_TYPE',
+            choices: ['smoke', 'load', 'stress', 'soak'],
+            description: 'Type of performance test to run'
+        )
+        choice(
+            name: 'ENVIRONMENT',
+            choices: ['dev', 'stage', 'prod'],
+            description: 'Target environment for testing'
+        )
+        string(
+            name: 'THREADS',
+            defaultValue: '',
+            description: 'Number of virtual users (leave empty to use env default)'
+        )
+        string(
+            name: 'DURATION',
+            defaultValue: '',
+            description: 'Test duration in seconds (leave empty to use env default)'
+        )
+    }
+
+    // Environment variables
+    environment {
+        // JMeter paths
+        JMETER_HOME = '/opt/apache-jmeter'
+        JMETER_BIN = "${JMETER_HOME}/bin"
+        
+        // Project paths
+        SCRIPTS_DIR = 'scripts'
+        ENV_DIR = 'env'
+        DATA_DIR = 'data'
+        RESULTS_DIR = 'results'
+        REPORTS_DIR = 'reports'
+        
+        // Timestamp for unique result files
+        TIMESTAMP = sh(script: 'date +%Y%m%d-%H%M%S', returnStdout: true).trim()
+        
+        // Credentials from Jenkins secrets
+        API_KEY = credentials('api-key')
+        AUTH_TOKEN = credentials('auth-token')
+        TARGET_HOST = credentials("${params.ENVIRONMENT}-api-host")
+    }
+
+    // Pipeline stages
+    stages {
+        // Stage 1: Setup and Validation
+        stage('Setup') {
+            steps {
+                echo '========================================='
+                echo 'Performance Test Pipeline'
+                echo '========================================='
+                echo "Test Type: ${params.TEST_TYPE}"
+                echo "Environment: ${params.ENVIRONMENT}"
+                echo "Timestamp: ${env.TIMESTAMP}"
+                
+                // Create necessary directories
+                sh '''
+                    mkdir -p ${RESULTS_DIR}
+                    mkdir -p ${REPORTS_DIR}
+                '''
+                
+                // Validate JMeter installation
+                sh '${JMETER_BIN}/jmeter --version'
+            }
+        }
+
+        // Stage 2: Validate Test Plans
+        stage('Validate Test Plans') {
+            steps {
+                echo 'Validating JMeter test plans...'
+                
+                script {
+                    def testPlan = params.TEST_TYPE == 'smoke' ? 
+                        'smoke-test.jmx' : 'load-test.jmx'
+                    
+                    sh """
+                        ${JMETER_BIN}/jmeter -n \
+                            -t ${SCRIPTS_DIR}/test-plans/${testPlan} \
+                            -q ${ENV_DIR}/${params.ENVIRONMENT}.properties \
+                            -l /dev/null \
+                            -j ${RESULTS_DIR}/validation.log
+                    """
+                }
+                
+                echo '✓ Test plan validation completed'
+            }
+        }
+
+        // Stage 3: Run Performance Test
+        stage('Run Performance Test') {
+            steps {
+                echo "Running ${params.TEST_TYPE} test on ${params.ENVIRONMENT}..."
+                
+                script {
+                    def testPlan = params.TEST_TYPE == 'smoke' ? 
+                        'smoke-test.jmx' : 'load-test.jmx'
+                    
+                    def envFile = params.TEST_TYPE == 'smoke' ? 
+                        'smoke.properties' : "${params.ENVIRONMENT}.properties"
+                    
+                    // Build JMeter command with optional parameters
+                    def jmeterCmd = """
+                        ${JMETER_BIN}/jmeter -n \
+                            -t ${SCRIPTS_DIR}/test-plans/${testPlan} \
+                            -q ${ENV_DIR}/${envFile} \
+                            -Jtarget.host=${env.TARGET_HOST} \
+                            -Japi.key=${env.API_KEY} \
+                            -Jauth.token=${env.AUTH_TOKEN}
+                    """
+                    
+                    // Add optional thread count override
+                    if (params.THREADS) {
+                        jmeterCmd += " -Jthreads=${params.THREADS}"
+                    }
+                    
+                    // Add optional duration override
+                    if (params.DURATION) {
+                        jmeterCmd += " -Jduration=${params.DURATION}"
+                    }
+                    
+                    // Add result file paths
+                    jmeterCmd += """
+                        -l ${RESULTS_DIR}/${params.TEST_TYPE}-${env.TIMESTAMP}.jtl \
+                        -j ${RESULTS_DIR}/${params.TEST_TYPE}-${env.TIMESTAMP}.log \
+                        -e \
+                        -o ${REPORTS_DIR}/${params.TEST_TYPE}-${env.TIMESTAMP}
+                    """
+                    
+                    // Execute JMeter test
+                    sh jmeterCmd
+                }
+                
+                echo '✓ Performance test completed'
+            }
+        }
+
+        // Stage 4: Validate Quality Gates
+        stage('Quality Gates') {
+            steps {
+                echo 'Validating quality gates...'
+                
+                script {
+                    // Parse JTL file to extract metrics
+                    def jtlFile = "${RESULTS_DIR}/${params.TEST_TYPE}-${env.TIMESTAMP}.jtl"
+                    
+                    // Run quality gates validation script
+                    def exitCode = sh(
+                        script: """
+                            python3 utils/quality-gates.py \
+                                --jtl-file ${jtlFile} \
+                                --error-rate-threshold 2.0 \
+                                --p95-threshold 800 \
+                                --throughput-threshold 10
+                        """,
+                        returnStatus: true
+                    )
+                    
+                    if (exitCode != 0) {
+                        error('Quality gates validation failed!')
+                    }
+                }
+                
+                echo '✓ Quality gates passed'
+            }
+        }
+
+        // Stage 5: Archive Results
+        stage('Archive Results') {
+            steps {
+                echo 'Archiving test results and reports...'
+                
+                // Archive JTL and log files
+                archiveArtifacts artifacts: "${RESULTS_DIR}/*.jtl,${RESULTS_DIR}/*.log", 
+                                 allowEmptyArchive: false
+                
+                // Archive HTML reports
+                publishHTML([
+                    allowMissing: false,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: "${REPORTS_DIR}/${params.TEST_TYPE}-${env.TIMESTAMP}",
+                    reportFiles: 'index.html',
+                    reportName: "Performance Test Report - ${params.TEST_TYPE}",
+                    reportTitles: ''
+                ])
+                
+                echo '✓ Results archived successfully'
+            }
+        }
+    }
+
+    // Post-build actions
+    post {
+        success {
+            echo '========================================='
+            echo '✓ Performance test pipeline completed successfully!'
+            echo '========================================='
+            
+            // Send success notification (configure your notification method)
+            // emailext body: 'Performance test completed successfully',
+            //          subject: "Performance Test Success - ${params.TEST_TYPE}",
+            //          to: 'team@example.com'
+        }
+        
+        failure {
+            echo '========================================='
+            echo '✗ Performance test pipeline failed!'
+            echo '========================================='
+            
+            // Send failure notification
+            // emailext body: 'Performance test failed. Check Jenkins for details.',
+            //          subject: "Performance Test Failed - ${params.TEST_TYPE}",
+            //          to: 'team@example.com'
+        }
+        
+        always {
+            // Clean up workspace (optional)
+            echo 'Cleaning up...'
+            // cleanWs()
+        }
+    }
+}
+

@@ -1,0 +1,34 @@
+# Grafana Datasource Configuration for InfluxDB
+# This file automatically provisions the InfluxDB datasource in Grafana
+# Documentation: https://grafana.com/docs/grafana/latest/administration/provisioning/#datasources
+
+apiVersion: 1
+
+# List of datasources to configure
+datasources:
+  # InfluxDB datasource for JMeter metrics
+  - name: InfluxDB-JMeter
+    type: influxdb
+    access: proxy
+    # URL to InfluxDB service (using Docker network)
+    url: http://influxdb:8086
+    # Database name where JMeter metrics are stored
+    database: jmeter
+    # User credentials (match docker-compose configuration)
+    user: jmeter
+    # Password for InfluxDB user
+    secureJsonData:
+      password: jmeter123
+    # Mark as default datasource
+    isDefault: true
+    # JSON configuration for InfluxDB
+    jsonData:
+      # HTTP method for queries
+      httpMode: GET
+      # Time interval for queries
+      timeInterval: 1s
+    # This datasource is editable in Grafana UI
+    editable: true
+    # Version of the datasource
+    version: 1
+

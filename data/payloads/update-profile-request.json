@@ -1,0 +1,10 @@
+{
+  "userId": "${user_id}",
+  "firstName": "${random_first_name}",
+  "lastName": "${random_last_name}",
+  "email": "${random_email}",
+  "phone": "${random_phone}",
+  "dateOfBirth": "${random_date}",
+  "updatedAt": "${timestamp_iso}"
+}
+

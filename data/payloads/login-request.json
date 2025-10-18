@@ -1,0 +1,7 @@
+{
+  "username": "${username}",
+  "password": "${password}",
+  "rememberMe": false,
+  "deviceId": "${uuid}"
+}
+

@@ -1,0 +1,20 @@
+{
+  "orderId": "${random_order_id}",
+  "userId": "${user_id}",
+  "items": [
+    {
+      "productId": "PROD-${__Random(1000,9999)}",
+      "quantity": ${random_quantity},
+      "price": ${random_price}
+    }
+  ],
+  "shippingAddress": {
+    "street": "${random_address}",
+    "city": "${random_city}",
+    "zipCode": "${random_zip}",
+    "country": "USA"
+  },
+  "orderDate": "${timestamp_iso}",
+  "totalAmount": ${random_price}
+}
+

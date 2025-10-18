@@ -1,0 +1,141 @@
+# Docker Compose Configuration for JMeter Performance Testing Framework
+# This compose file sets up the complete testing environment with:
+# - JMeter: Test execution engine
+# - InfluxDB: Time-series database for metrics storage
+# - Grafana: Visualization and dashboards
+
+version: '3.8'
+
+services:
+  # JMeter Service - Performance test execution
+  jmeter:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: jmeter-runner
+    # The command can be overridden when running specific tests
+    # Example: docker-compose run jmeter jmeter -n -t /tests/scripts/test-plans/smoke-test.jmx
+    command: ["jmeter", "--version"]
+    volumes:
+      # Mount project directories to the container
+      - ../scripts:/tests/scripts:ro          # Test plans and scripts (read-only)
+      - ../env:/tests/env:ro                  # Environment configurations (read-only)
+      - ../data:/tests/data:ro                # Test data files (read-only)
+      - ../results:/tests/results:rw          # Test results (read-write)
+      - ../reports:/tests/reports:rw          # Generated reports (read-write)
+    networks:
+      - jmeter-network
+    environment:
+      # JMeter JVM settings - adjust based on your needs
+      - JVM_ARGS=-Xms512m -Xmx2048m -XX:MaxMetaspaceSize=256m
+      # Timezone
+      - TZ=UTC
+    depends_on:
+      - influxdb
+    # Resource limits to prevent container from consuming all host resources
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'      # Limit to 2 CPU cores
+          memory: 4G        # Limit to 4GB RAM
+        reservations:
+          cpus: '1.0'      # Reserve at least 1 CPU core
+          memory: 2G        # Reserve at least 2GB RAM
+
+  # InfluxDB Service - Time-series database for storing test metrics
+  influxdb:
+    image: influxdb:1.8-alpine
+    container_name: jmeter-influxdb
+    ports:
+      - "8086:8086"        # HTTP API port
+    volumes:
+      - influxdb-data:/var/lib/influxdb    # Persistent storage for database
+    networks:
+      - jmeter-network
+    environment:
+      # InfluxDB configuration
+      - INFLUXDB_DB=jmeter                  # Default database name
+      - INFLUXDB_HTTP_AUTH_ENABLED=false    # Disable authentication for simplicity
+      - INFLUXDB_ADMIN_USER=admin           # Admin username
+      - INFLUXDB_ADMIN_PASSWORD=admin123    # Admin password (change in production!)
+      - INFLUXDB_USER=jmeter                # Regular user
+      - INFLUXDB_USER_PASSWORD=jmeter123    # Regular user password
+    healthcheck:
+      test: ["CMD", "influx", "-execute", "SHOW DATABASES"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # Grafana Service - Visualization and dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: jmeter-grafana
+    ports:
+      - "3000:3000"        # Grafana web UI
+    volumes:
+      - grafana-data:/var/lib/grafana                    # Persistent storage for dashboards
+      - ../docs/grafana/dashboards:/etc/grafana/provisioning/dashboards:ro   # Auto-provision dashboards
+      - ../docs/grafana/datasources:/etc/grafana/provisioning/datasources:ro # Auto-provision datasources
+    networks:
+      - jmeter-network
+    environment:
+      # Grafana configuration
+      - GF_SECURITY_ADMIN_USER=admin        # Admin username
+      - GF_SECURITY_ADMIN_PASSWORD=admin123 # Admin password (change in production!)
+      - GF_INSTALL_PLUGINS=grafana-clock-panel,grafana-simple-json-datasource
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH=/etc/grafana/provisioning/dashboards/jmeter-dashboard.json
+    depends_on:
+      - influxdb
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+# Network definition
+networks:
+  jmeter-network:
+    driver: bridge
+    name: jmeter-network
+
+# Volume definitions for persistent storage
+volumes:
+  influxdb-data:
+    driver: local
+    name: jmeter-influxdb-data
+  grafana-data:
+    driver: local
+    name: jmeter-grafana-data
+
+# Usage Instructions:
+# ------------------
+# 1. Start all services:
+#    docker-compose -f docker/docker-compose.yml up -d
+#
+# 2. Run a smoke test:
+#    docker-compose -f docker/docker-compose.yml run --rm jmeter \
+#      jmeter -n -t /tests/scripts/test-plans/smoke-test.jmx \
+#      -Jenv=smoke -q /tests/env/smoke.properties \
+#      -l /tests/results/smoke-test.jtl \
+#      -e -o /tests/reports/smoke-test
+#
+# 3. Run a load test:
+#    docker-compose -f docker/docker-compose.yml run --rm jmeter \
+#      jmeter -n -t /tests/scripts/test-plans/load-test.jmx \
+#      -Jenv=dev -q /tests/env/dev.properties \
+#      -l /tests/results/load-test.jtl \
+#      -e -o /tests/reports/load-test
+#
+# 4. View Grafana dashboards:
+#    Open http://localhost:3000 in your browser
+#    Username: admin, Password: admin123
+#
+# 5. Stop all services:
+#    docker-compose -f docker/docker-compose.yml down
+#
+# 6. Clean up volumes:
+#    docker-compose -f docker/docker-compose.yml down -v
+
