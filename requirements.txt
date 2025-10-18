@@ -1,0 +1,13 @@
+# Python dependencies for JMeter Performance Test Framework
+# These packages are required for quality gates validation and test analysis
+
+# Data manipulation and analysis
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Optional: For advanced reporting and visualization
+# matplotlib>=3.7.0
+# seaborn>=0.12.0
+
+# Note: Install using: pip install -r requirements.txt
+

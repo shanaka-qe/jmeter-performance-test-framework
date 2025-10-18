@@ -1,0 +1,52 @@
+# GitHub Language Detection Configuration
+# This file tells GitHub how to classify files for language statistics
+
+# Mark Groovy files as Groovy
+*.groovy linguist-language=Groovy
+
+# Mark Python files as Python
+*.py linguist-language=Python
+
+# Mark Shell scripts as Shell
+*.sh linguist-language=Shell
+
+# Exclude certain files from language statistics
+*.md linguist-documentation
+*.xml linguist-vendored
+*.jmx linguist-generated=false
+
+# Mark JMX files as XML but keep them in statistics
+*.jmx linguist-language=XML
+
+# Exclude documentation from language stats
+docs/** linguist-documentation
+
+# Exclude test data from language stats
+data/** linguist-vendored
+
+# Include these in language stats
+scripts/groovy/*.groovy linguist-vendored=false
+utils/*.py linguist-vendored=false
+utils/*.sh linguist-vendored=false
+
+# Set line endings
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+*.groovy text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.xml text eol=lf
+*.properties text eol=lf
+*.csv text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.jar binary
+
