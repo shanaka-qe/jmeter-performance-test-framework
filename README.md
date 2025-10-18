@@ -9,15 +9,30 @@
 **Author:** Shanaka Fernando  
 **LinkedIn:** https://www.linkedin.com/in/shanaka-qe/
 
+---
+
+## 💡 About This Framework
+
+This is a production-grade performance testing framework that I developed and successfully implemented with one of my previous clients to streamline their performance testing operations across multiple applications. The framework has been battle-tested in real-world scenarios and has significantly improved test execution efficiency, maintainability, and reporting capabilities.
+
+I'm now sharing this framework with the community to help other QA engineers and performance testers build robust, scalable, and maintainable performance testing solutions. Whether you're starting from scratch or looking to improve your existing performance testing practices, this framework provides a solid foundation with industry best practices baked in.
+
+---
+
+## 📖 Overview
+
 A comprehensive, code-first JMeter performance testing framework designed for real-world enterprise applications. This framework provides a complete solution for performance testing with modular components, CI/CD integration, and advanced reporting capabilities.
 
 ---
 
 ## 📋 Table of Contents
 
+- [About This Framework](#-about-this-framework)
+- [Overview](#-overview)
 - [Features](#-features)
 - [Project Structure](#-project-structure)
 - [Quick Start](#-quick-start)
+- [Setup Guide](#-setup-guide)
 - [Running Tests](#-running-tests)
 - [CI/CD Integration](#-cicd-integration)
 - [Reporting](#-reporting)
@@ -155,6 +170,22 @@ jmeter-performance-test-framework/
    ./utils/run-test.sh -t smoke -e dev
    ```
 
+> 📖 **Need more detailed setup instructions?** See the complete [Setup Guide](docs/setup-guide.md) for step-by-step installation for all platforms.
+
+---
+
+## 📦 Setup Guide
+
+For detailed installation and configuration instructions, please refer to the comprehensive [Setup Guide](docs/setup-guide.md), which includes:
+
+- System requirements for different platforms
+- Step-by-step installation for Windows, macOS, and Linux
+- Docker setup and configuration
+- IDE configuration (VS Code, IntelliJ)
+- Environment configuration
+- Troubleshooting common setup issues
+- Verification steps
+
 ---
 
 ## 🧪 Running Tests
@@ -290,23 +321,43 @@ Customize thresholds based on your SLAs.
 
 ## 📚 Documentation
 
-Detailed documentation is available in the `docs/` directory:
+Comprehensive documentation is available in the `docs/` directory:
 
-- **[Test Strategy](docs/test-strategy.md)**: Testing objectives, types, and environments
-- **[Modeling & Scenarios](docs/modeling-and-scenarios.md)**: Load modeling and ramp-up design
-- **[Runbook](docs/runbook.md)**: Step-by-step execution guide
+### Getting Started
+- **[Setup Guide](docs/setup-guide.md)**: Complete installation and configuration guide for all platforms
+- **[Quick Start & Runbook](docs/runbook.md)**: Step-by-step execution guide and troubleshooting
+
+### Testing Strategy & Design
+- **[Test Strategy](docs/test-strategy.md)**: Testing objectives, types, environments, and SLAs
+- **[Modeling & Scenarios](docs/modeling-and-scenarios.md)**: Load modeling, ramp-up strategies, and user journeys
+
+### Development & Contribution
 - **[Conventions](docs/conventions.md)**: Coding standards and naming conventions
-- **[Contributing](docs/contributing.md)**: How to contribute to the framework
+- **[Contributing Guide](docs/contributing.md)**: How to contribute to the framework
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see [CONTRIBUTING.md](docs/contributing.md) for:
-- Branching strategy
+We welcome contributions from the community! This framework is shared to help others, and your contributions can help make it even better.
+
+Please see the **[Contributing Guide](docs/contributing.md)** for detailed information on:
+- Setting up your development environment
+- Branching strategy and workflow
 - Code review process
-- Pull request checklist
+- Pull request checklist and guidelines
 - Testing requirements
+- Coding standards and best practices
+
+### Quick Contribution Steps
+
+1. Fork the repository
+2. Create a feature branch (`feature/your-feature-name`)
+3. Make your changes following our [conventions](docs/conventions.md)
+4. Test your changes thoroughly
+5. Submit a pull request with a clear description
+
+All contributions, whether bug fixes, new features, documentation improvements, or suggestions, are greatly appreciated! 🙏
 
 ---
 

@@ -1,0 +1,74 @@
+# JMeter Performance Test Framework - Git Ignore File
+
+# Test Results - don't commit large result files
+results/*.jtl
+results/*.log
+results/*.csv
+
+# HTML Reports - don't commit generated reports
+reports/
+*.html
+
+# JMeter Log Files
+jmeter.log
+*.out
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+*~
+
+# OS Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDE Files
+.vscode/
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+*.sublime-*
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+
+# Docker
+*.log
+
+# Secrets and Credentials - NEVER COMMIT!
+*.key
+*.pem
+*.p12
+.env
+secrets/
+credentials/
+
+# Build artifacts
+target/
+build/
+dist/
+*.jar
+*.war
+
+# Backup files
+*.backup
+*.old
+
+# Keep directory structure
+!.gitkeep
+
